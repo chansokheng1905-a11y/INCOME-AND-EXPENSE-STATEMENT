@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>ExpenseTracker Pro • ប្រព័ន្ធគ្រប់គ្រងចំណូល-ចំណាយ - លោកគ្រូ ចាន់ សុខហេង</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Kantumruy Pro, Moul, & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Moul&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDKs for Cloud Sync across devices -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Kantumruy Pro"', '"Plus Jakarta Sans"', 'sans-serif'],
+                        moul: ['"Moul"', 'serif'],
+                    },
+                    colors: {
+                        gold: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                            800: '#92400e',
+                            900: '#78350f',
+                            950: '#451a03',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .bg-luxury-dark {
+            background: radial-gradient(circle at 50% 10%, #1c1408 0%, #0d0b07 55%, #050402 100%);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #facc15 35%, #eab308 60%, #ca8a04 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-card {
+            background: linear-gradient(145deg, rgba(30, 24, 15, 0.90) 0%, rgba(15, 12, 7, 0.95) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.35);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(254, 240, 138, 0.15);
+            backdrop-filter: blur(16px);
+        }
+        .gold-card:hover {
+            border-color: rgba(250, 204, 21, 0.75);
+            box-shadow: 0 12px 35px rgba(234, 179, 8, 0.18), inset 0 1px 1px rgba(254, 240, 138, 0.3);
+        }
+        .gold-button {
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #b45309 100%);
+            color: #1c1408;
+            box-shadow: 0 4px 15px rgba(202, 138, 4, 0.35);
+            transition: all 0.25s ease;
+        }
+        .gold-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(202, 138, 4, 0.55);
+            filter: brightness(1.08);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.03);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(234, 179, 8, 0.4);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-luxury-dark text-slate-100 min-h-screen font-sans flex flex-col justify-between">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-amber-500/20 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-700 p-0.5 shadow-lg shadow-amber-500/20 shrink-0">
+                    <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-amber-400 text-lg font-bold">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-bold text-base sm:text-lg leading-tight gold-gradient-text">
+                            ExpenseTracker Pro • ហិរញ្ញវត្ថុ
+                        </h1>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/40">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Cloud Sync
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-amber-200/70 font-medium">
+                        គ្រប់គ្រងចំណូល-ចំណាយ (USD & Riel) • អ្នកប្រើប្រាស់៖ <strong class="text-amber-400">លោកគ្រូ ចាន់ សុខហេង</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Action -->
+            <div class="flex items-center gap-2">
+                <button onclick="openTransactionModal()" class="gold-button px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                    <span>កត់ត្រាថ្មី</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <!-- Financial Summary Cards (Split into USD and KHR) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- USD Account Card -->
+            <div class="gold-card rounded-3xl p-6 space-y-4 border-t-4 border-amber-400">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="fa-solid fa-dollar-sign"></i> កែបប្រាក់ ដុល្លារ (USD Account)
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">USD ($)</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+                    <div class="bg-black/50 p-3 rounded-2xl border border-amber-500/20">
+                        <span class="text-[10px] text-slate-400 block mb-1">ចំណូល</span>
+                        <strong id="usdIncome" class="text-sm sm:text-base font-bold text-emerald-400 font-mono">$0.00</strong>
+                    </div>
+                    <div class="bg-black/50 p-3 rounded-2xl border border-amber-500/20">
+                        <span class="text-[10px] text-slate-400 block mb-1">ចំណាយ</span>
+                        <strong id="usdExpense" class="text-sm sm:text-base font-bold text-rose-400 font-mono">$0.00</strong>
+                    </div>
+                    <div class="bg-black/50 p-3 rounded-2xl border border-amber-500/20">
+                        <span class="text-[10px] text-slate-400 block mb-1">សមតុល្យ</span>
+                        <strong id="usdBalance" class="text-sm sm:text-base font-bold text-white font-mono">$0.00</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KHR Account Card -->
+            <div class="gold-card rounded-3xl p-6 space-y-4 border-t-4 border-emerald-400">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-emerald-300 uppercase tracking-widest flex items-center gap-1.5">
+                        <i class="fa-solid fa-money-bill-1"></i> កែបប្រាក់ រៀល (KHR Account)
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">KHR (៛)</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+                    <div class="bg-black/50 p-3 rounded-2xl border border-emerald-500/20">
+                        <span class="text-[10px] text-slate-400 block mb-1">ចំណូល</span>
+                        <strong id="khrIncome" class="text-xs sm:text-sm font-bold text-emerald-400 font-mono">0 ៛</strong>
+                    </div>
+                    <div class="bg-black/50 p-3 rounded-2xl border border-emerald-500/20">
+                        <span class="text-[10px] text-slate-400 block mb-1">ចំណាយ</span>
+                        <strong id="khrExpense" class="text-xs sm:text-sm font-bold text-rose-400 font-mono">0 ៛</strong>
+                    </div>
+                    <div class="bg-black/50 p-3 rounded-2xl border border-emerald-500/20">
+                        <span class="text-[10px] text-slate-400 block mb-1">សមតុល្យ</span>
+                        <strong id="khrBalance" class="text-xs sm:text-sm font-bold text-white font-mono">0 ៛</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Search Panel -->
+        <div class="gold-card rounded-[2rem] p-5 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                    <button onclick="setFilterCurrency('all')" id="btnCurrAll" class="px-3.5 py-2 rounded-xl text-xs font-bold transition gold-button shadow-md">
+                        🌐 ប្រាក់ទាំងអស់
+                    </button>
+                    <button onclick="setFilterCurrency('USD')" id="btnCurrUsd" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 border border-amber-500/30 hover:bg-amber-500/20">
+                        💲 ដុល្លារ ($)
+                    </button>
+                    <button onclick="setFilterCurrency('KHR')" id="btnCurrKhr" class="px-3.5 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 border border-emerald-500/30 hover:bg-emerald-500/20">
+                        ៛ រៀល (KHR)
+                    </button>
+                </div>
+
+                <div class="relative w-full sm:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-amber-400/70"></i>
+                    <input type="text" id="filterSearch" oninput="renderTransactions()" placeholder="ស្វែងរកចំណងជើង ឬប្រភេទ..." class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-amber-500/40 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions List -->
+        <div id="transactionsContainer" class="space-y-3">
+            <!-- Dynamic items rendered here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyNotice" class="gold-card rounded-3xl p-12 text-center hidden space-y-3">
+            <div class="w-16 h-16 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-receipt"></i>
+            </div>
+            <h3 class="text-base font-bold text-white">មិនទាន់មានកំណត់ត្រាប្រតិបត្តិការនៅឡើយទេ</h3>
+            <p class="text-xs text-slate-400 max-w-md mx-auto">
+                សូមចុចប៊ូតុង «កត់ត្រាថ្មី» នៅផ្នែកខាងលើ ដើម្បីចាប់ផ្តើមបញ្ចូលចំណូល ឬចំណាយរបស់អ្នក។
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Modal: Add / Edit Transaction -->
+    <div id="transactionModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="gold-card border border-amber-400/50 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-amber-500/20 pb-3">
+                <h3 id="modalTitle" class="text-base font-bold text-amber-300 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-nib"></i> កត់ត្រាប្រតិបត្តិការថ្មី
+                </h3>
+                <button onclick="closeTransactionModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="transactionForm" onsubmit="handleSaveTransaction(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="editTxId">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-amber-200 font-semibold mb-1">สกุลប្រាក់ (Currency) <span class="text-rose-400">*</span></label>
+                        <select id="inputCurrency" class="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-amber-500/40 text-amber-300 font-bold focus:outline-none">
+                            <option value="USD">💲 ដុល្លារ ($)</option>
+                            <option value="KHR">៛ រៀល (KHR)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-amber-200 font-semibold mb-1">ប្រភេទប្រតិបត្តិការ <span class="text-rose-400">*</span></label>
+                        <select id="inputTxType" onchange="updateCategoryOptions()" class="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-amber-500/40 text-white font-bold focus:outline-none">
+                            <option value="income">📈 ចំណូល (Income)</option>
+                            <option value="expense" selected>📉 ចំណាយ (Expense)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                        <label class="block text-amber-200 font-semibold mb-1">ទឹកប្រាក់ <span class="text-rose-400">*</span></label>
+                        <input type="number" step="any" id="inputAmount" required placeholder="ឧ. 25.50 ឬ 40000" class="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-amber-500/40 text-white font-bold font-mono focus:outline-none focus:ring-2 focus:ring-amber-400">
+                    </div>
+                    <div>
+                        <label class="block text-amber-200 font-semibold mb-1">កាលបរិច្ឆេទ <span class="text-rose-400">*</span></label>
+                        <input type="date" id="inputDate" required class="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-amber-500/40 text-amber-300 font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-amber-200 font-semibold mb-1">ផ្នែក / ប្រភេទ (Category) <span class="text-rose-400">*</span></label>
+                    <select id="inputCategory" class="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-amber-500/40 text-white font-bold focus:outline-none">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-amber-200 font-semibold mb-1">ចំណងជើង / ការពិពណ៌នា <span class="text-rose-400">*</span></label>
+                    <input type="text" id="inputTitle" required placeholder="ឧ. ទិញម្ហូបថ្ងៃត្រង់ ឬ ប្រាក់ខែបង្រៀន..." class="w-full px-3.5 py-3 rounded-xl bg-black/60 border border-amber-500/40 text-white font-semibold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+
+                <div class="flex gap-2 pt-3">
+                    <button type="button" id="btnModalDelete" onclick="deleteTxFromModal()" class="hidden px-4 py-3 rounded-xl border border-rose-800/70 bg-rose-950/50 hover:bg-rose-900/70 text-rose-400 font-bold transition" title="លុបកំណត់ត្រានេះ">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                    <button type="button" onclick="closeTransactionModal()" class="flex-1 py-3 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold">បោះបង់</button>
+                    <button type="submit" class="flex-1 gold-button py-3 rounded-xl font-bold shadow-md">រក្សាទុក</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-amber-500/10 py-3.5 text-center text-[11px] text-slate-500 bg-black/40">
+        ប្រព័ន្ធគ្រប់គ្រងចំណូល-ចំណាយ (ExpenseTracker Pro) • រៀបរៀងដោយ <span class="text-amber-400/80 font-semibold">លោកគ្រូ ចាន់ សុខហេង</span>
+    </footer>
+
+    <script>
+        // Connect to Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBTmY6YKLmpQ4mqAZm96P39IYtR4uQvtE",
+            authDomain: "my-planner-app-e9576.firebaseapp.com",
+            projectId: "my-planner-app-e9576",
+            storageBucket: "my-planner-app-e9576.firebasestorage.app",
+            messagingSenderId: "820137960838",
+            appId: "1:820137960838:web:df39f02662e2aff521b807",
+            measurementId: "G-9LCSDVH7C5"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        const COLLECTION_NAME = 'expense_tracker_multi_currency';
+        let allTransactions = [];
+        let currentCurrencyFilter = 'all';
+
+        const categories = {
+            income: [
+                "ប្រាក់ខែ (Salary)",
+                "បង្រៀនបន្ថែម (Teaching)",
+                "លក់ដូរ/អាជីវកម្ម (Business)",
+                "ប្រាក់ចំណូលផ្សេងៗ (Other Income)"
+            ],
+            expense: [
+                "ម្ហូបអាហារ (Food & Drinks)",
+                "ការធ្វើដំណើរ (Transport)",
+                "វិក្កយបត្រ/ភ្លើង-ទឹក (Bills & Utilities)",
+                "ការសិក្សា/សៀវភៅ (Education)",
+                "ទិញសម្ភារៈ (Shopping)",
+                "សុខភាព (Healthcare)",
+                "ចំណាយផ្សេងៗ (Other Expense)"
+            ]
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+            updateCategoryOptions();
+            listenToTransactions();
+        });
+
+        function updateCategoryOptions() {
+            const txType = document.getElementById('inputTxType').value;
+            const catSelect = document.getElementById('inputCategory');
+            const list = categories[txType] || [];
+            catSelect.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function listenToTransactions() {
+            db.collection(COLLECTION_NAME)
+                .onSnapshot(async snapshot => {
+                    if (snapshot.empty) {
+                        const batch = db.batch();
+                        const starters = [
+                            { currency: "USD", type: "income", amount: 650.00, date: "2026-11-01", category: "ប្រាក់ខែ (Salary)", title: "ប្រាក់បៀវត្សប្រចាំខែ", createdAt: new Date().toISOString() },
+                            { currency: "USD", type: "expense", amount: 15.50, date: "2026-11-15", category: "ម្ហូបអាហារ (Food & Drinks)", title: "ទិញម្ហូប និងភេសជ្ជៈ", createdAt: new Date().toISOString() },
+                            { currency: "KHR", type: "expense", amount: 40000, date: "2026-11-16", category: "ការធ្វើដំណើរ (Transport)", title: "ចាក់សាំងម៉ូតូ", createdAt: new Date().toISOString() },
+                            { currency: "KHR", type: "income", amount: 200000, date: "2026-11-17", category: "បង្រៀនបន្ថែម (Teaching)", title: "បង្រៀនគណិតវិទ្យាថ្នាក់បន្ថែម", createdAt: new Date().toISOString() }
+                        ];
+                        starters.forEach(item => {
+                            const ref = db.collection(COLLECTION_NAME).doc();
+                            batch.set(ref, item);
+                        });
+                        await batch.commit();
+                        return;
+                    }
+
+                    allTransactions = [];
+                    snapshot.forEach(doc => {
+                        allTransactions.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    renderTransactions();
+                }, err => {
+                    console.error("Firestore error:", err);
+                });
+        }
+
+        function setFilterCurrency(curr) {
+            currentCurrencyFilter = curr;
+            document.getElementById('btnCurrAll').className = `px-3.5 py-2 rounded-xl text-xs font-bold transition ${curr === 'all' ? 'gold-button shadow-md' : 'bg-slate-900 text-slate-300 border border-amber-500/30 hover:bg-amber-500/20'}`;
+            document.getElementById('btnCurrUsd').className = `px-3.5 py-2 rounded-xl text-xs font-bold transition ${curr === 'USD' ? 'gold-button shadow-md' : 'bg-slate-900 text-slate-300 border border-amber-500/30 hover:bg-amber-500/20'}`;
+            document.getElementById('btnCurrKhr').className = `px-3.5 py-2 rounded-xl text-xs font-bold transition ${curr === 'KHR' ? 'gold-button shadow-md' : 'bg-slate-900 text-slate-300 border border-emerald-500/30 hover:bg-emerald-500/20'}`;
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const container = document.getElementById('transactionsContainer');
+            const emptyNotice = document.getElementById('emptyNotice');
+            const searchVal = document.getElementById('filterSearch').value.toLowerCase().trim();
+
+            container.innerHTML = '';
+            let filtered = [...allTransactions];
+
+            if (currentCurrencyFilter !== 'all') {
+                filtered = filtered.filter(t => (t.currency || 'USD') === currentCurrencyFilter);
+            }
+            if (searchVal) {
+                filtered = filtered.filter(t => 
+                    (t.title || '').toLowerCase().includes(searchVal) ||
+                    (t.category || '').toLowerCase().includes(searchVal) ||
+                    (t.date || '').toLowerCase().includes(searchVal)
+                );
+            }
+
+            // Sort newest first
+            filtered.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+            // Calculate Totals for USD and KHR separately
+            let usdInc = 0, usdExp = 0;
+            let khrInc = 0, khrExp = 0;
+
+            allTransactions.forEach(t => {
+                const amt = parseFloat(t.amount) || 0;
+                const curr = t.currency || 'USD';
+                if (curr === 'USD') {
+                    if (t.type === 'income') usdInc += amt;
+                    else if (t.type === 'expense') usdExp += amt;
+                } else {
+                    if (t.type === 'income') khrInc += amt;
+                    else if (t.type === 'expense') khrExp += amt;
+                }
+            });
+
+            const usdBal = usdInc - usdExp;
+            const khrBal = khrInc - khrExp;
+
+            document.getElementById('usdIncome').innerText = `$${usdInc.toFixed(2)}`;
+            document.getElementById('usdExpense').innerText = `$${usdExp.toFixed(2)}`;
+            document.getElementById('usdBalance').innerText = `$${usdBal.toFixed(2)}`;
+
+            document.getElementById('khrIncome').innerText = `${khrInc.toLocaleString()} ៛`;
+            document.getElementById('khrExpense').innerText = `${khrExp.toLocaleString()} ៛`;
+            document.getElementById('khrBalance').innerText = `${khrBal.toLocaleString()} ៛`;
+
+            if (filtered.length === 0) {
+                emptyNotice.classList.remove('hidden');
+                return;
+            } else {
+                emptyNotice.classList.add('hidden');
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "gold-card rounded-3xl p-4 sm:p-5 flex items-center justify-between gap-3 transition-all duration-300";
+
+                const isIncome = item.type === 'income';
+                const curr = item.currency || 'USD';
+                const rawAmt = parseFloat(item.amount || 0);
+                const amtFormatted = curr === 'USD' ? `$${rawAmt.toFixed(2)}` : `${rawAmt.toLocaleString()} ៛`;
+
+                const amtClass = isIncome ? 'text-emerald-400 font-mono font-bold' : 'text-rose-400 font-mono font-bold';
+                const iconClass = isIncome ? 'fa-solid fa-arrow-down-long text-emerald-400 text-lg' : 'fa-solid fa-arrow-up-long text-rose-400 text-lg';
+                
+                let badgeClass = '';
+                if (curr === 'USD') {
+                    badgeClass = isIncome ? 'px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold' : 'px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-bold';
+                } else {
+                    badgeClass = isIncome ? 'px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold' : 'px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold';
+                }
+
+                let formattedDate = item.date;
+                try {
+                    const dObj = new Date(item.date);
+                    if (!isNaN(dObj)) {
+                        formattedDate = dObj.toLocaleDateString('km-KH', { year: 'numeric', month: 'long', day: 'numeric' });
+                    }
+                } catch(e) {}
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-10 h-10 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-center shrink-0">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <div class="space-y-0.5 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="${badgeClass}">${curr === 'USD' ? 'ដុល្លារ ($)' : 'រៀល (៛)'} • ${isIncome ? 'ចំណូល' : 'ចំណាយ'}</span>
+                                <span class="text-[11px] text-amber-300/80 font-medium truncate">${item.category}</span>
+                            </div>
+                            <h4 class="font-bold text-sm text-white truncate">${item.title}</h4>
+                            <p class="text-[10px] text-slate-400 font-mono"><i class="fa-regular fa-calendar mr-1"></i>${formattedDate}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span class="text-sm sm:text-base ${amtClass}">${isIncome ? '+' : '-'}${amtFormatted}</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="openEditTxModal('${item.id}')" title="កែប្រែ" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center text-xs transition">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteTx('${item.id}', '${(item.title || '').replace(/'/g, "\\'")}')" title="លុប" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-rose-500/20 text-rose-400 border border-rose-800/50 flex items-center justify-center text-xs transition">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function openTransactionModal() {
+            document.getElementById('editTxId').value = '';
+            document.getElementById('transactionForm').reset();
+            document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('inputCurrency').value = 'USD';
+            document.getElementById('inputTxType').value = 'expense';
+            updateCategoryOptions();
+            document.getElementById('btnModalDelete').classList.add('hidden');
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-nib"></i> កត់ត្រាប្រតិបត្តិការថ្មី';
+            document.getElementById('transactionModal').classList.remove('hidden');
+            document.getElementById('transactionModal').classList.add('flex');
+        }
+
+        function openEditTxModal(id) {
+            const item = allTransactions.find(t => t.id === id);
+            if (!item) return;
+
+            document.getElementById('editTxId').value = item.id;
+            document.getElementById('inputCurrency').value = item.currency || 'USD';
+            document.getElementById('inputTxType').value = item.type;
+            updateCategoryOptions();
+            document.getElementById('inputAmount').value = item.amount;
+            document.getElementById('inputDate').value = item.date;
+            document.getElementById('inputCategory').value = item.category;
+            document.getElementById('inputTitle').value = item.title;
+
+            document.getElementById('btnModalDelete').classList.remove('hidden');
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> កែប្រែប្រតិបត្តិការ';
+            document.getElementById('transactionModal').classList.remove('hidden');
+            document.getElementById('transactionModal').classList.add('flex');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').classList.add('hidden');
+            document.getElementById('transactionModal').classList.remove('flex');
+        }
+
+        async function handleSaveTransaction(e) {
+            e.preventDefault();
+            const id = document.getElementById('editTxId').value;
+            const currency = document.getElementById('inputCurrency').value;
+            const type = document.getElementById('inputTxType').value;
+            const amount = parseFloat(document.getElementById('inputAmount').value);
+            const date = document.getElementById('inputDate').value;
+            const category = document.getElementById('inputCategory').value;
+            const title = document.getElementById('inputTitle').value.trim();
+
+            if (isNaN(amount) || !date || !category || !title) return;
+
+            const payload = {
+                currency, type, amount, date, category, title,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                if (id) {
+                    await db.collection(COLLECTION_NAME).doc(id).update(payload);
+                } else {
+                    payload.createdAt = new Date().toISOString();
+                    await db.collection(COLLECTION_NAME).add(payload);
+                }
+                closeTransactionModal();
+            } catch (err) {
+                console.error("Save transaction error:", err);
+                alert("មានបញ្ហាក្នុងការរក្សាទុកទិន្នន័យ!");
+            }
+        }
+
+        async function deleteTxFromModal() {
+            const id = document.getElementById('editTxId').value;
+            const title = document.getElementById('inputTitle').value;
+            if (!id) return;
+            if (!confirm(`តើលោកគ្រូពិតជាចង់លុបកំណត់ត្រា «${title}» ចេញមែនទេ?`)) return;
+            try {
+                await db.collection(COLLECTION_NAME).doc(id).delete();
+                closeTransactionModal();
+            } catch (err) {
+                console.error("Delete error:", err);
+            }
+        }
+
+        async function deleteTx(id, title) {
+            if (!confirm(`តើលោកគ្រូពិតជាចង់លុបកំណត់ត្រា «${title}» ចេញមែនទេ?`)) return;
+            try {
+                await db.collection(COLLECTION_NAME).doc(id).delete();
+            } catch (err) {
+                console.error("Delete error:", err);
+            }
+        }
+    </script>
+</body>
+</html>
